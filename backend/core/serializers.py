@@ -21,14 +21,14 @@ class EmployeeSerializer(serializers.ModelSerializer):
         """
         print("validated_data", validated_data)
         user_data = validated_data.pop('employee')
-        user = User.objects.create(
+        user, _ = User.objects.get_or_create(
             username=user_data.get('email'), 
             email=user_data.pop('email'),
             first_name=user_data.pop('first_name'),
             last_name=user_data.pop('last_name'),
         )
         validated_data['employee'] = user
-        instance = Employee.objects.create(**validated_data)
+        instance, _ = Employee.objects.get_or_create(**validated_data)
         # instance.employee = user
         return instance
 
