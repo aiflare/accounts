@@ -3,7 +3,6 @@ import { useState, useEffect, useInput } from "react";
 
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -11,11 +10,8 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
-
-import avatar from "assets/img/faces/marc.jpg";
 
 const styles = {
   cardCategoryWhite: {
@@ -38,28 +34,25 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
-function simulateNetworkRequest() {
-  return new Promise((resolve, reject) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'laxmikant@gmail.com', first_name: 'Laxmikant', last_name: 'Ratnaparkhi',
-      mobile: '+918208490427', 'joining_date': '2021-05-06', 'designation': '1', 'dept': 1  })
-    };
-    setTimeout(function() {
-      fetch('http://localhost:8000/api/employee/', requestOptions)
-      .then(response => response.json())
-      .then(data => console.log(data));
-      var didSucceed = Math.random() >= 0.5;
-      didSucceed ? resolve(new Date()) : reject('Error');
-    }, 2000);
-  })
-}
-
 export default function EmployeeProfile(props) {
+  
   const classes = useStyles();
-  const [isLoading, setLoading] = useState(false);
+  const [employee, setEmployee] = useState({});
 
+  useEffect(() => {
+    var pathArray = window.location.pathname.split('/');
+    var filtered = pathArray.filter(function (el) { return el; });
+    var empolyeeID = filtered.slice(-1)[0];
+    const employeeAPI = 'http://localhost:8000/api/employee/' + empolyeeID +'/?format=json'  ;
+    console.log("employeeAPI", employeeAPI);
+    //if valid number
+    if (isFinite(String(empolyeeID))){
+      fetch(employeeAPI)
+      .then(response => response.json())
+      .then(data => setEmployee(data))
+    }
+  },[])
+  
   const handleName = (e) =>{
     console.log(e.target.value)
   }
@@ -137,14 +130,15 @@ export default function EmployeeProfile(props) {
                 <GridContainer>
                   <GridItem xs={12} sm={12} md={6}>
                     <CustomInput
-                      labelText="First Name"
-                      id="first-name"
+                      labelText={employee?"":"First Name"}
+                      id="firs032+t-name"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         name: "firstName",
                         onChange: handleName,
+                        value:employee.first_name
                         }
                       }
                     />

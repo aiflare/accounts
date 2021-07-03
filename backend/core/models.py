@@ -17,6 +17,7 @@ class Department(models.Model):
 
 
 class Employee(models.Model):
+    active = models.BooleanField(default=True)
     employee = models.OneToOneField(User, on_delete=models.CASCADE)
     designation = models.ForeignKey(Designation, blank=True, null=True, on_delete=models.CASCADE)
     dept = models.ForeignKey(Department, blank=True, null=True, on_delete=models.CASCADE)

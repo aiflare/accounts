@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // react plugin for creating charts
 import ChartistGraph from "react-chartist";
@@ -43,10 +43,41 @@ import {
 
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
+let users;
+function fetchEmployees(){
+  users = fetch('http://localhost:8000/api/employee/?format=json').then(response => response.json());
+}; 
+
 const useStyles = makeStyles(styles);
 
-export default function Dashboard() {
+export default function Dashboard(props) {
+  const [employees, setEmployees] = useState([]);
   const classes = useStyles();
+
+  useEffect(() => {
+    const api = 'http://localhost:8000/api/employee/?format=json';
+    fetch(api).then(response => response.json())
+    .then(records =>{
+      let arr = [];
+      for (var index in records){
+        const item = records[index];
+        const seq = parseInt(index)+1 ;
+        var editURL = "http://localhost:3000/admin/employee/"+seq+"/";
+        if (seq > 10 && seq <99){
+          seq = <a href="{editURL}"> {"EMP00" + seq.toString()}</a>; 
+        }else if (seq > 100 && seq < 999){
+          seq = <a href={editURL}> {"EMP0" + seq.toString()}</a>; 
+        }else if(seq < 10){
+          seq = <a href={editURL}> {"EMP000" + seq.toString()}</a>; 
+        }else{
+          seq = <a href={editURL}> {"EMP" + seq.toString()}</a>
+        }
+        const fullname = item.first_name + " " + item.last_name;
+        arr.push([seq, fullname, item.email, item.mobile, item.joining_date])
+      }
+      setEmployees(arr)
+    })
+  },[])
   return (
     <div>
       <GridContainer>
@@ -57,7 +88,7 @@ export default function Dashboard() {
               <Icon>engineering</Icon>
               </CardIcon>
               <p className={classes.cardCategory}>Employees</p>
-              <h3 className={classes.cardTitle}>245</h3>
+              <h3 className={classes.cardTitle}>{employees.length}</h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
@@ -136,13 +167,8 @@ export default function Dashboard() {
             <CardBody>
               <Table
                 tableHeaderColor="warning"
-                tableHead={["ID", "Name", "Salary", "Country"]}
-                tableData={[
-                  ["1", "Dakota Rice", "$36,738", "Niger"],
-                  ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                  ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                  ["4", "Philip Chaney", "$38,735", "Korea, South"],
-                ]}
+                tableHead={["ID", "Name", "Email", "Mobile", "Joining Date"]}
+                tableData={employees}
               />
             </CardBody>
           </Card>
